@@ -40,6 +40,8 @@ app.post('/api/separate', upload.single('file'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
+  const mode = req.body.mode || '4stems'; // Either '4stems' or '2stems'
+
   const originalFilePath = req.file.path;
   // Demucs creates a folder with the exact name of the file (minus the extension)
   const fileNameNoExt = path.parse(req.file.filename).name;
@@ -60,7 +62,14 @@ app.post('/api/separate', upload.single('file'), (req, res) => {
 
     // Run Demucs via inline script to explicitly bypass Python's strict Windows DLL security
     const pyScript = "import os; os.add_dll_directory(r'C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin'); from demucs.separate import main; main()";
-    const demucs = spawn('python', ['-c', pyScript, '-n', 'htdemucs', '-o', outputDir, wavFilePath]);
+    
+    const demucsArgs = ['-c', pyScript, '-n', 'htdemucs'];
+    if (mode === '2stems') {
+      demucsArgs.push('--two-stems', 'vocals'); // Instructs Demucs to only separate vocals from the rest
+    }
+    demucsArgs.push('-o', outputDir, wavFilePath);
+    
+    const demucs = spawn('python', demucsArgs);
 
     demucs.stdout.on('data', (data) => console.log(`Demucs: ${data.toString()}`));
     demucs.stderr.on('data', (data) => console.log(`Demucs (Progress): ${data.toString()}`));
@@ -75,7 +84,16 @@ app.post('/api/separate', upload.single('file'), (req, res) => {
       const baseUrl = `http://localhost:5000/separated/htdemucs/${fileNameNoExt}`;
       
       console.log('Separation complete.');
-      res.json({ tracks: { vocals: `${baseUrl}/vocals.wav`, drums: `${baseUrl}/drums.wav`, bass: `${baseUrl}/bass.wav`, other: `${baseUrl}/other.wav` } });
+      
+      let tracksInfo = {};
+      if (mode === '2stems') {
+        // Demucs automatically names the instrumental 'no_vocals.wav'
+        tracksInfo = { vocals: `${baseUrl}/vocals.wav`, instrumental: `${baseUrl}/no_vocals.wav` };
+      } else {
+        tracksInfo = { vocals: `${baseUrl}/vocals.wav`, drums: `${baseUrl}/drums.wav`, bass: `${baseUrl}/bass.wav`, other: `${baseUrl}/other.wav` };
+      }
+      
+      res.json({ tracks: tracksInfo });
 
       // --- CLEANUP TIMER ---
       // Delete the files 30 minutes (1800000 ms) after they are generated

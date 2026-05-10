@@ -6,14 +6,15 @@ At a random 3 am, you just want to sing karaoke to your favourite song. But when
 
 Now introducing:
 
-Ruhan's Karaoke Maker : A full-stack web application that allows users to upload any song and automatically separate it into four distinct audio tracks (stems): **Vocals, Drums, Bass, and Other**. It utilizes Facebook's state-of-the-art [Demucs](https://github.com/facebookresearch/demucs) AI model for high-quality audio source separation. 
+Ruhan's Karaoke Maker : A full-stack web application that allows users to upload any song and automatically separate it into isolated tracks. You can choose between **Karaoke Mode** (Vocals + Instrumental) or **Full Mode** (Vocals, Drums, Bass, and Other). It utilizes Facebook's state-of-the-art [Demucs](https://github.com/facebookresearch/demucs) AI model for high-quality audio source separation. 
 
 Once processed, users can listen to the tracks in a synchronized multi-track audio player—perfect for creating instrumental karaoke tracks, practicing drum covers, or remixing!
 
 ## ✨ Features
 
-- **AI Audio Separation**: Uses the `htdemucs` AI model to precisely split audio into 4 stems.
+- **AI Audio Separation Modes**: Uses the `htdemucs` AI model to precisely split audio. Choose between extracting just the Vocals/Instrumental (Karaoke Mode) or all 4 stems (Full Mode).
 - **Synchronized Playback**: Custom React audio player that allows you to play and pause all 4 tracks perfectly in sync.
+- **One-Click Downloads**: Easily download individual stems directly to your device once processing is complete.
 - **Format Conversion**: Automatically converts uploaded MP3s to WAVs on the backend for maximum compatibility with the AI engine.
 - **Auto-Cleanup System**: 
   - **30-Minute Timer**: Automatically deletes heavy `.wav` files 30 minutes after generation to save disk space.
@@ -96,12 +97,13 @@ Because this app relies heavily on local CPU/GPU AI processing, you must have th
 ## 💡 Usage
 
 1. Open your browser and go to `http://localhost:5173`.
-2. Click **Choose File** and upload an audio file (e.g., an `.mp3` or `.wav`).
-3. Click **Upload & Separate**. 
+2. Select your desired extraction mode: **Karaoke Mode (2 stems)** or **Full Mode (4 stems)**.
+3. Click **Choose File** and upload an audio file (e.g., an `.mp3` or `.wav`).
+4. Click **Upload & Separate**. 
    - *Note: The very first time you run the app, Demucs will pause to download the `htdemucs` AI model weights. Subsequent runs will process immediately.*
    - *Processing a full 3-minute song on a CPU typically takes 5–10 minutes.*
-4. Once complete, the UI will display the 4 separated tracks.
-5. Use the **Play All** and **Pause All** buttons to control the tracks simultaneously, and use the individual volume/mute controls to isolate the instruments you want to hear!
+5. Once complete, the UI will display the separated tracks.
+6. Use the **Play All** and **Pause All** buttons to control the tracks simultaneously, or hit the **Download** button next to any track to save it to your computer!
 
 ---
 
